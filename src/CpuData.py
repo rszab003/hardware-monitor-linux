@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 
-from distutils import core
 import os, json
 
 master = {}
