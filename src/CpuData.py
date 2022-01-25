@@ -27,7 +27,12 @@ def determineCpuTempDirectory():
 
 def getCpuTemp():
     global master
-    tempDir = determineCpuTempDirectory() #folder that should hold temperature data
+    #TODO implement file creation in determineCpuTempDirectory() method
+    try:
+        open("../maps/directories", "r")
+    except FileNotFoundError:
+        print("DIDNT FIND MAPS FILE")
+        tempDir = determineCpuTempDirectory() #folder that should hold temperature data
     if (tempDir == -1):
         return -1
     #core count starts at 1 here for some reason
