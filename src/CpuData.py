@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import os, json
+import os, json, init
 
 master = {}
 
@@ -11,6 +11,7 @@ def calcUsage():
         with open(usageFile, "r") as fi:
             for i in range(0, os.cpu_count() + 1):
                 usageData = fi.readline()[:-1].split()
+
                 print(usageData)
     except Exception as ex:
         print("ERROR Calculating Usage!!!")
@@ -18,35 +19,10 @@ def calcUsage():
     return -1
 
 
-#FIND HWMON DIRECTORY THAT HOLDS CPU TEMPS
-#TODO make this only run once when program starts, since this directory does not frequently change
-def determineCpuTempDirectory():
-    hwmonDir = "/sys/class/hwmon"
-    for rootDirPath, subDirs, files in os.walk(hwmonDir, followlinks=True):
-        distance = rootDirPath.count(os.sep) - hwmonDir.count(os.sep) #depth of os.walk
-        if distance != 0: #don't check 1st directory
-            checkName = rootDirPath + "/name"
-            try:
-                with open(checkName, "r") as fi:
-                    name = fi.read()
-                    if name == "coretemp\n":
-                        return checkName[:-5] #remove "/name" from file path
-            except FileNotFoundError as ex:
-                print("ERROR WITH HWMON PARSING! No file found called \"name\"")
-                print(ex)
-        if distance >= 1:
-            del subDirs[:]
-    return -1
-
-
 def getCpuTemp():
     global master
     #TODO implement file creation in determineCpuTempDirectory() method
-    try:
-        open("../maps/directories", "r")
-    except FileNotFoundError:
-        print("DIDNT FIND MAPS FILE")
-        tempDir = determineCpuTempDirectory() #folder that should hold temperature data
+    tempDir = init.determineCpuTempDirectory() #folder that should hold temperature data
     if (tempDir == -1):
         return -1
     #core count starts at 1 here for some reason
@@ -102,21 +78,3 @@ def cpuInfo():
         print("ERROR GETTING CPU DATA!")
         print(ex)
         
-
-
-def gpuTemp():
-    filePath = "/sys/class/hwmon/hwmon3/temp1_input"
-    print("GPU TEMP: " + open(filePath).read())
-
-def main():
-    cpuInfo()
-    getCpuTemp()
-    calcUsage()
-    print("*" * 30)
-    print(master)
-    # gpuTemp()
-    
-
-
-if __name__ == "__main__":
-    main()
