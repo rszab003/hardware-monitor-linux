@@ -11,6 +11,7 @@ def createTempFS():
     if not exists("/tmp/openhwmon_linux/maps.json"):
         with open("/tmp/openhwmon_linux/maps.json", "w") as fi:
             cpuTempDir = determineCpuTempDirectory()
+            #TODO write as valid JSON
             fi.write(cpuTempDir)
 
 
