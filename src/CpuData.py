@@ -3,6 +3,21 @@
 import os, json
 
 master = {}
+
+#TODO /proc/stat carries total usages from startup. make a method that subtracts the current values from the previous
+def calcUsage():
+    usageFile = "/proc/stat"
+    try:
+        with open(usageFile, "r") as fi:
+            for i in range(0, os.cpu_count() + 1):
+                usageData = fi.readline()[:-1].split()
+                print(usageData)
+    except Exception as ex:
+        print("ERROR Calculating Usage!!!")
+        print(ex)
+    return -1
+
+
 #FIND HWMON DIRECTORY THAT HOLDS CPU TEMPS
 #TODO make this only run once when program starts, since this directory does not frequently change
 def determineCpuTempDirectory():
@@ -96,9 +111,10 @@ def gpuTemp():
 def main():
     cpuInfo()
     getCpuTemp()
+    calcUsage()
     print("*" * 30)
     print(master)
-    gpuTemp()
+    # gpuTemp()
     
 
 
