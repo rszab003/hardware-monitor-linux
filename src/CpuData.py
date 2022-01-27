@@ -4,19 +4,34 @@ import os, json, init
 
 master = {}
 
-#TODO /proc/stat carries total usages from startup. make a method that subtracts the current values from the previous
-def calcUsage():
-    usageFile = "/proc/stat"
-    try:
-        with open(usageFile, "r") as fi:
-            for i in range(0, os.cpu_count() + 1):
-                usageData = fi.readline()[:-1].split()
-
-                print(usageData)
-    except Exception as ex:
-        print("ERROR Calculating Usage!!!")
-        print(ex)
+def calcUsage(prevUsages, currUsages):
+    print(prevUsages)
+    print("*" * 15)
+    print(currUsages)
     return -1
+
+#TODO /proc/stat carries total usages from startup. make a method that subtracts the current values from the previous
+def getUsage():
+    currUsageFile = "/proc/stat"; prevUsageFile = "/tmp/openhwmon_linux/maps.json"
+    currUsages = []
+    try:
+        f = open(prevUsageFile, "r")
+        prevUsages = json.load(f)
+        prevUsages = prevUsages["prevUsageData"]
+        f.close()
+    except FileNotFoundError as ex:
+        print("ERROR GETTING PREV USAGE DATA")
+        print(ex)
+    # print("PREV USAGES!!!\n", prevUsages)
+    try:
+        with open(currUsageFile, "r") as fi:
+            for i in range(0, os.cpu_count() + 1):
+                currUsages.append(fi.readline()[:-1].split())
+        # print(currUsages)
+    except FileNotFoundError as ex:
+        print("ERROR GETTING CURRENT USAGE DATA")
+        print(ex)
+    calcUsage(prevUsages, currUsages)
 
 
 def getCpuTemp():

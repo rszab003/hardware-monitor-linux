@@ -6,7 +6,7 @@ def main():
     CpuData.cpuInfo()
     init.determineCpuTempDirectory()
     CpuData.getCpuTemp()
-    CpuData.calcUsage()
+    CpuData.getUsage()
     print("*" * 30)
     print(CpuData.master)
 

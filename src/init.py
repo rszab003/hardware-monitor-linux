@@ -2,21 +2,37 @@
 #DETERMINE CPU TEMP DIRECTORY
 
 from os.path import exists
-import os
+import os, json
+
 
 def createTempFS():
     if not exists("/tmp/openhwmon_linux"):
         os.mkdir("/tmp/openhwmon_linux", 755)
     
     if not exists("/tmp/openhwmon_linux/maps.json"):
+        data = {
+            "cpuTempDir" : determineCpuTempDirectory(),
+            "prevUsageData" : getUsage()
+        }
         with open("/tmp/openhwmon_linux/maps.json", "w") as fi:
-            cpuTempDir = determineCpuTempDirectory()
-            #TODO write as valid JSON
-            fi.write(cpuTempDir)
+            json.dump(data, fi, indent=3)
+
+
+def getUsage():
+    usageFile = "/proc/stat"
+    lst = []
+    try:
+        with open(usageFile, "r") as fi:
+            for i in range(0, os.cpu_count() + 1):
+                usageData = fi.readline()[:-1].split()
+                lst.append(usageData)
+    except Exception as ex:
+        print("Error Getting Prev USAGE DATA")
+        print(ex)
+    return lst
 
 
 #FIND HWMON DIRECTORY THAT HOLDS CPU TEMPS
-#TODO make this only run once when program starts, since this directory does not frequently change
 def determineCpuTempDirectory():
     hwmonDir = "/sys/class/hwmon"
     for rootDirPath, subDirs, files in os.walk(hwmonDir, followlinks=True):
