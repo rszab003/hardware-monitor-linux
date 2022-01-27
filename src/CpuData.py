@@ -1,14 +1,54 @@
 #!/usr/bin/python3
 
-import os, json, init
+import os, json, itertools, init
 
 master = {}
 
+#TODO FIX BUG WHERE MAPS.JSON IS EMPTY!!!
+# def refreshUsageData(currUsages):
+#     mapsFi = open("/tmp/openhwmon_linux/maps.json", "w+")
+#     maps = json.load(mapsFi)
+#     print("WE ARE IN MAPS!!!!", maps)
+#     maps["prevUsageData"] = currUsages
+#     print("MAPS NOW!!!", maps)
+#     json.dump(maps, mapsFi, indent=3)
+#     mapsFi.close()
+
+#TODO ADD THIS DATA TO MASTER!!!
 def calcUsage(prevUsages, currUsages):
-    print(prevUsages)
-    print("*" * 15)
-    print(currUsages)
-    return -1
+    # refreshUsageData(currUsages)
+    prevIdle = []
+    currIdle = []
+    for i in range(0, len(prevUsages)):
+        prevIdle.append(int(prevUsages[i][4]))
+        currIdle.append(int(currUsages[i][4]))
+        del prevUsages[i][4]; del currUsages[i][4] #deletes idle and cpu labels. 
+        #this is already known from the order of the list
+        del prevUsages[i][0]; del currUsages[i][0]
+    totUsages = []
+    for i in range(0, len(prevUsages)):
+        prevUsages[i] = list(map(int, prevUsages[i])) #convert string to int
+        currUsages[i] = list(map(int, currUsages[i]))
+        prevUsages[i] = list(itertools.accumulate(prevUsages[i])) #quick way to get the sum total of cpu usage
+        currUsages[i] = list(itertools.accumulate(currUsages[i]))
+        sumCurr = currUsages[i][len(currUsages[i]) - 1]
+        sumPrev = prevUsages[i][len(prevUsages[i]) - 1]
+        totUsages.append(sumCurr - sumPrev)
+    print("CURR IDLE BEFORE!!!!", currIdle)
+    finalUsage = []
+    for i in range(0, len(currIdle)):
+        currIdle[i] = currIdle[i] - prevIdle[i]
+        finalUsage.append( 100 * ( (totUsages[i] - currIdle[i]) / (totUsages[i] + currIdle[i]) ) )
+    
+    
+    print("FINAL USAGES!!!!::: ", finalUsage)
+    print("PREV IDLE!!!")
+    print(prevIdle)
+    # print("PREVUSAGES!!!")
+    # print(prevUsages)
+    print("CURR IDLE!!!")
+    print(currIdle)
+    # print(currUsages)
 
 #TODO /proc/stat carries total usages from startup. make a method that subtracts the current values from the previous
 def getUsage():
