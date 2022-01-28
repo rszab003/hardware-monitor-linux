@@ -4,19 +4,19 @@ import os, json, itertools, init
 
 master = {}
 
-#TODO FIX BUG WHERE MAPS.JSON IS EMPTY!!!
-# def refreshUsageData(currUsages):
-#     mapsFi = open("/tmp/openhwmon_linux/maps.json", "w+")
-#     maps = json.load(mapsFi)
-#     print("WE ARE IN MAPS!!!!", maps)
-#     maps["prevUsageData"] = currUsages
-#     print("MAPS NOW!!!", maps)
-#     json.dump(maps, mapsFi, indent=3)
-#     mapsFi.close()
+#TODO FIX BUG WHERE NEW DATA IS WRITTEN TO END OF FILE!!
+def refreshUsageData(currUsages):
+    mapsFi = open("/tmp/openhwmon_linux/maps.json", "r+")
+    maps = json.load(mapsFi)
+    print("WE ARE IN REFRESH DATA USAGE!!!!!!", maps)
+    maps["prevUsageData"] = currUsages
+    print("MAPS NOW!!!", maps)
+    json.dump(maps, mapsFi, indent=3)
+    mapsFi.close()
 
 #TODO ADD THIS DATA TO MASTER!!!
 def calcUsage(prevUsages, currUsages):
-    # refreshUsageData(currUsages)
+    refreshUsageData(currUsages)
     prevIdle = []
     currIdle = []
     for i in range(0, len(prevUsages)):
@@ -34,20 +34,18 @@ def calcUsage(prevUsages, currUsages):
         sumCurr = currUsages[i][len(currUsages[i]) - 1]
         sumPrev = prevUsages[i][len(prevUsages[i]) - 1]
         totUsages.append(sumCurr - sumPrev)
-    print("CURR IDLE BEFORE!!!!", currIdle)
+    # print("CURR IDLE BEFORE!!!!", currIdle)
     finalUsage = []
     for i in range(0, len(currIdle)):
         currIdle[i] = currIdle[i] - prevIdle[i]
         finalUsage.append( 100 * ( (totUsages[i] - currIdle[i]) / (totUsages[i] + currIdle[i]) ) )
-    
-    
-    print("FINAL USAGES!!!!::: ", finalUsage)
-    print("PREV IDLE!!!")
-    print(prevIdle)
-    # print("PREVUSAGES!!!")
-    # print(prevUsages)
-    print("CURR IDLE!!!")
-    print(currIdle)
+    # print("FINAL USAGES!!!!::: ", finalUsage)
+    # print("PREV IDLE!!!")
+    # print(prevIdle)
+    # # print("PREVUSAGES!!!")
+    # # print(prevUsages)
+    # print("CURR IDLE!!!")
+    # print(currIdle)
     # print(currUsages)
 
 #TODO /proc/stat carries total usages from startup. make a method that subtracts the current values from the previous
@@ -71,6 +69,7 @@ def getUsage():
     except FileNotFoundError as ex:
         print("ERROR GETTING CURRENT USAGE DATA")
         print(ex)
+    print("IN GET USAGE!!!")
     calcUsage(prevUsages, currUsages)
 
 

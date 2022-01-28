@@ -9,7 +9,7 @@ def createTempFS():
     if not exists("/tmp/openhwmon_linux"):
         os.mkdir("/tmp/openhwmon_linux", 755)
     
-    if not exists("/tmp/openhwmon_linux/maps.json"):
+    if not exists("/tmp/openhwmon_linux/maps.json") or os.stat("/tmp/openhwmon_linux/maps.json").st_size == 0:
         data = {
             "cpuTempDir" : determineCpuTempDirectory(),
             "prevUsageData" : getUsage()
