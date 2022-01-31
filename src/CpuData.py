@@ -17,13 +17,11 @@ def refreshUsageData(currUsages):
 
 #TODO ADD THIS DATA TO MASTER!!!
 def calcUsage(prevUsages, currUsages):
-    allUsages = []
+    global master; allUsages = []
     refreshUsageData(currUsages)
     for i in range(0, len(prevUsages)):
         del prevUsages[i][0]
-        # print(prevUsages[i])
         del currUsages[i][0]
-        # print(currUsages[i])
         prevUsages[i] = list(map(int, prevUsages[i]))
         currUsages[i] = list(map(int, currUsages[i]))
 
@@ -31,24 +29,23 @@ def calcUsage(prevUsages, currUsages):
         prevUseTime = 0; prevIdleTime = 0
         currUseTime = 0; currIdleTime = 0
         allUseTimeCurr = 0; allUseTimePrev = 0
-        # print("CPU {} !!!!".format(i))
         for j in range(0, len(prevUsages[i])):
             if j == 3:
                 prevIdleTime += prevUsages[i][j]
                 currIdleTime += currUsages[i][j]
-                # print("HELLOOOOO {} {}".format(prevIdleTime, currIdleTime))
             else:
                 prevUseTime += prevUsages[i][j]
                 currUseTime += currUsages[i][j]
             allUseTimeCurr += currUsages[i][j]
             allUseTimePrev += prevUsages[i][j]
-            # print("CHECK!!!!::: ")
-        # print("PREV USAGE::: {}\tCURR USAGE::: {}\tDIFF:::{}".format(prevUseTime, currUseTime, currUseTime - prevUseTime))
-        # print("PREV IDLE::: {}\tCURR IDLE::: {}\tDIFF:::{}".format(prevIdleTime, currIdleTime, currIdleTime - prevIdleTime))
-        # print("ALL USE TIME!!! CURR::: {}\tPREV:::{}\tDIFF:::{}".format(allUseTimeCurr, allUseTimePrev, allUseTimeCurr - allUseTimePrev))
         percentage = ((currUseTime - prevUseTime) - (currIdleTime - prevIdleTime)) / (allUseTimeCurr - allUseTimePrev)
         allUsages.append(abs(percentage))
-    print("PERCENTAGES::: {}".format(allUsages))
+    # print("PERCENTAGES::: {}".format(allUsages))
+    for i in range(0, len(master["Cores"])):
+        # print(master["Cores"][i])
+        master["Cores"][i]["Usage"] = allUsages[i]
+    print(master["Cores"])
+
             
     
 
