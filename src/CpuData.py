@@ -4,51 +4,55 @@ import os, json, itertools, init
 
 master = {}
 
-#TODO FIX BUG WHERE NEW DATA IS WRITTEN TO END OF FILE!!
+
 def refreshUsageData(currUsages):
     mapsFi = open("/tmp/openhwmon_linux/maps.json", "r+")
     maps = json.load(mapsFi)
-    print("WE ARE IN REFRESH DATA USAGE!!!!!!", maps)
+    # print("WE ARE IN REFRESH DATA USAGE!!!!!!", maps)
     maps["prevUsageData"] = currUsages
-    print("MAPS NOW!!!", maps)
+    # print("MAPS NOW!!!", maps)
+    mapsFi.seek(0); mapsFi.truncate()
     json.dump(maps, mapsFi, indent=3)
     mapsFi.close()
 
 #TODO ADD THIS DATA TO MASTER!!!
 def calcUsage(prevUsages, currUsages):
+    allUsages = []
     refreshUsageData(currUsages)
-    prevIdle = []
-    currIdle = []
     for i in range(0, len(prevUsages)):
-        prevIdle.append(int(prevUsages[i][4]))
-        currIdle.append(int(currUsages[i][4]))
-        del prevUsages[i][4]; del currUsages[i][4] #deletes idle and cpu labels. 
-        #this is already known from the order of the list
-        del prevUsages[i][0]; del currUsages[i][0]
-    totUsages = []
-    for i in range(0, len(prevUsages)):
-        prevUsages[i] = list(map(int, prevUsages[i])) #convert string to int
+        del prevUsages[i][0]
+        # print(prevUsages[i])
+        del currUsages[i][0]
+        # print(currUsages[i])
+        prevUsages[i] = list(map(int, prevUsages[i]))
         currUsages[i] = list(map(int, currUsages[i]))
-        prevUsages[i] = list(itertools.accumulate(prevUsages[i])) #quick way to get the sum total of cpu usage
-        currUsages[i] = list(itertools.accumulate(currUsages[i]))
-        sumCurr = currUsages[i][len(currUsages[i]) - 1]
-        sumPrev = prevUsages[i][len(prevUsages[i]) - 1]
-        totUsages.append(sumCurr - sumPrev)
-    # print("CURR IDLE BEFORE!!!!", currIdle)
-    finalUsage = []
-    for i in range(0, len(currIdle)):
-        currIdle[i] = currIdle[i] - prevIdle[i]
-        finalUsage.append( 100 * ( (totUsages[i] - currIdle[i]) / (totUsages[i] + currIdle[i]) ) )
-    # print("FINAL USAGES!!!!::: ", finalUsage)
-    # print("PREV IDLE!!!")
-    # print(prevIdle)
-    # # print("PREVUSAGES!!!")
-    # # print(prevUsages)
-    # print("CURR IDLE!!!")
-    # print(currIdle)
-    # print(currUsages)
 
-#TODO /proc/stat carries total usages from startup. make a method that subtracts the current values from the previous
+    for i in range(0, len(prevUsages)):
+        prevUseTime = 0; prevIdleTime = 0
+        currUseTime = 0; currIdleTime = 0
+        allUseTimeCurr = 0; allUseTimePrev = 0
+        # print("CPU {} !!!!".format(i))
+        for j in range(0, len(prevUsages[i])):
+            if j == 3:
+                prevIdleTime += prevUsages[i][j]
+                currIdleTime += currUsages[i][j]
+                # print("HELLOOOOO {} {}".format(prevIdleTime, currIdleTime))
+            else:
+                prevUseTime += prevUsages[i][j]
+                currUseTime += currUsages[i][j]
+            allUseTimeCurr += currUsages[i][j]
+            allUseTimePrev += prevUsages[i][j]
+            # print("CHECK!!!!::: ")
+        # print("PREV USAGE::: {}\tCURR USAGE::: {}\tDIFF:::{}".format(prevUseTime, currUseTime, currUseTime - prevUseTime))
+        # print("PREV IDLE::: {}\tCURR IDLE::: {}\tDIFF:::{}".format(prevIdleTime, currIdleTime, currIdleTime - prevIdleTime))
+        # print("ALL USE TIME!!! CURR::: {}\tPREV:::{}\tDIFF:::{}".format(allUseTimeCurr, allUseTimePrev, allUseTimeCurr - allUseTimePrev))
+        percentage = ((currUseTime - prevUseTime) - (currIdleTime - prevIdleTime)) / (allUseTimeCurr - allUseTimePrev)
+        allUsages.append(abs(percentage))
+    print("PERCENTAGES::: {}".format(allUsages))
+            
+    
+
+
 def getUsage():
     currUsageFile = "/proc/stat"; prevUsageFile = "/tmp/openhwmon_linux/maps.json"
     currUsages = []
@@ -69,7 +73,6 @@ def getUsage():
     except FileNotFoundError as ex:
         print("ERROR GETTING CURRENT USAGE DATA")
         print(ex)
-    print("IN GET USAGE!!!")
     calcUsage(prevUsages, currUsages)
 
 
