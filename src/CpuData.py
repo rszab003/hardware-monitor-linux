@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import os, json, itertools, init
+import os, json, init
 
 master = {}
 
@@ -46,8 +46,6 @@ def calcUsage(prevUsages, currUsages):
         master["Cores"][i]["Usage"] = allUsages[i]
     print(master["Cores"])
 
-            
-    
 
 
 def getUsage():
@@ -73,6 +71,7 @@ def getUsage():
     calcUsage(prevUsages, currUsages)
 
 
+
 def getCpuTemp():
     global master
     #TODO implement file creation in determineCpuTempDirectory() method
@@ -95,9 +94,9 @@ def getCpuTemp():
         except FileNotFoundError as ex:
             print("ERROR: could not find: {}".format(cpuTempLoc))
             print(ex)
-    
 
-    
+
+
 
 # GET CPU MODEL, CACHE SIZE & CURR CLOCK SPEEDS
 def cpuInfo():
