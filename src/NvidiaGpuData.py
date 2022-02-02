@@ -11,7 +11,7 @@ def getGpuTemp():
     temperatureData = subprocess.run(["nvidia-smi", "--query-gpu=temperature.gpu", "--format=csv"], text=True, capture_output=True)
     temperatureData = temperatureData.stdout.split()
     master[temperatureData[0]] = temperatureData[1]
-    print(master)
+    # print(master)
     # print(temperatureData.stdout)
 
 
