@@ -44,7 +44,7 @@ def calcUsage(prevUsages, currUsages):
     for i in range(0, len(master["Cores"])):
         # print(master["Cores"][i])
         master["Cores"][i]["Usage"] = allUsages[i]
-    print(master["Cores"])
+    # print(master["Cores"])
 
 
 
@@ -130,4 +130,10 @@ def cpuInfo():
     except Exception as ex:
         print("ERROR GETTING CPU DATA!")
         print(ex)
+
+
+def fetch():
+    cpuInfo()
+    getCpuTemp()
+    getUsage()
         

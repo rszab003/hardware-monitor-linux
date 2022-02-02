@@ -11,11 +11,8 @@ def main():
     driverVersion = Driver.nvidia
     # print("DRIVERVER!!!:: {}".format(driverVersion.value))
     init.createTempFS()
-
-    CpuData.cpuInfo()
     init.determineCpuTempDirectory()
-    CpuData.getCpuTemp()
-    CpuData.getUsage()
+    CpuData.fetch()
     print("*" * 30)
     print(CpuData.master)
     print("*" * 30)
