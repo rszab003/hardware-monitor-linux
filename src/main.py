@@ -16,8 +16,10 @@ def main():
     print("*" * 30)
     print(CpuData.master)
     print("*" * 30)
+    gpuData = {}
     if driverVersion == Driver.nvidia:
-        NvidiaGpuData.fetch()
+        gpuData = NvidiaGpuData.fetch()
+    print(gpuData)
 
     
 if __name__ == "__main__":
