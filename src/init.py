@@ -1,11 +1,10 @@
-#CREATE DIRECTORY IN TEMP TO LOG PREV CPU USAGE,
-#DETERMINE CPU TEMP DIRECTORY
+#CREATE DIRECTORY IN /tmp TO LOG PREV CPU USAGE, CPU and MOTHERBOARD TEMP
 
 from os.path import exists
 import os, json
 
 
-def createTempFS():
+def createTempFS() -> None:
     if not exists("/tmp/openhwmon_linux"):
         os.mkdir("/tmp/openhwmon_linux", 755)
     
@@ -19,7 +18,7 @@ def createTempFS():
             json.dump(data, fi, indent=3)
 
 
-def getUsage():
+def getUsage() -> list:
     usageFile = "/proc/stat"
     lst = []
     try:

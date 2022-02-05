@@ -1,12 +1,24 @@
-import os
+import os, json
 
 
-def getBoardTemp() -> None:
-    targetDir = "sys/class/hwmon"
+def getBoardTemp(boardData: dict) -> dict:
+    try:
+        with open("/tmp/openhwmon_linux/maps.json", "r") as fi:
+            targetDir = json.load(fi)
+            targetDir = targetDir["motherboardTempDir"]
+    except Exception as ex:
+        print("ERROR RETRIEVING BOARD TEMP LOCATION!!")
+        print(ex)
+    print(targetDir)
+    for fi in os.listdir(targetDir):
+        if "input" in fi:
+            with open(targetDir + "/" + fi, "r") as tempFile:
+                boardData[fi] = tempFile.read()[:-1]
+    return boardData
 
 
 #Gets name and models of Motherboard and BIOS
-def getGeneralInfo() -> tuple:
+def getGeneralInfo() -> list:
     boardData = {}; biosData = {}
     targetDir = "/sys/devices/virtual/dmi/id"
     for fi in os.listdir(targetDir):
@@ -18,9 +30,10 @@ def getGeneralInfo() -> tuple:
         if "bios" in fi:
             with open(targetDir+"/"+fi, "r") as f:
                 biosData[fi] = f.read()[:-1]
-    return (boardData, biosData)
+    return [boardData, biosData]
 
 
-def fetch() -> tuple:
+def fetch() -> list:
     boardBiosData = getGeneralInfo()
+    boardBiosData[0] = getBoardTemp(boardBiosData[0])
     return boardBiosData
