@@ -1,26 +1,27 @@
-import init, CpuData, NvidiaGpuData
-from enum import Enum
-
-class Driver(Enum):
-    nvidia = 1
-    nouveau = 2
-    amd = 3
+import init, CpuData, NvidiaGpuData, RamData, MotherboardData
 
 def main():
-    #TODO Make a method in init that determines which sort of Driver one is using
-    driverVersion = Driver.nvidia
-    # print("DRIVERVER!!!:: {}".format(driverVersion.value))
     init.createTempFS()
     init.determineCpuTempDirectory()
+    
     CpuData.fetch()
     print("*" * 30)
     print(CpuData.master)
     print("*" * 30)
-    gpuData = {}
-    if driverVersion == Driver.nvidia:
-        gpuData = NvidiaGpuData.fetch()
+
+    gpuData = NvidiaGpuData.fetch()
     print(gpuData)
 
+    print("*" * 30)
+    ramData = RamData.getRamData()
+    print(ramData)
+
+    print("*" * 30)
+    boardBios = MotherboardData.fetch()
+    print(boardBios)
+
     
+
+
 if __name__ == "__main__":
     main()

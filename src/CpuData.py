@@ -1,9 +1,10 @@
 #!/usr/bin/python3
 
-import os, json, init
+import os, json
 
 master = {}
 
+#TODO rework methods without the global variable
 
 def refreshUsageData(currUsages):
     mapsFi = open("/tmp/openhwmon_linux/maps.json", "r+")
@@ -74,8 +75,13 @@ def getUsage():
 
 def getCpuTemp():
     global master
-    #TODO implement file creation in determineCpuTempDirectory() method
-    tempDir = init.determineCpuTempDirectory() #folder that should hold temperature data
+    try:
+        with open("/tmp/openhwmon_linux/maps.json", "r") as fi:
+            tempDir = json.load(fi)
+            tempDir = tempDir["cpuTempDir"]
+    except FileNotFoundError as ex:
+        print("ERROR! FILE WAS NOT MADE IN init.py.\nCHECK init.determineCpuTempDirectory()")
+        print(ex)
     if (tempDir == -1):
         return -1
     #core count starts at 1 here for some reason

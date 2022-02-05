@@ -1,6 +1,6 @@
 
 
-def getRamData():
+def getRamData() -> dict:
     master = {}
     with open("/proc/meminfo", "r") as fi:
         for i in range(0, 10):
