@@ -2,7 +2,6 @@ import init, CpuData, NvidiaGpuData, RamData, MotherboardData
 
 def main():
     init.createTempFS()
-    init.determineCpuTempDirectory()
     
     CpuData.fetch()
     print("*" * 30)

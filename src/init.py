@@ -11,7 +11,8 @@ def createTempFS():
     
     if not exists("/tmp/openhwmon_linux/maps.json") or os.stat("/tmp/openhwmon_linux/maps.json").st_size == 0:
         data = {
-            "cpuTempDir" : determineCpuTempDirectory(),
+            "cpuTempDir" : determineTempDirectory("coretemp\n"),
+            "motherboardTempDir" : determineTempDirectory("acpitz\n"),
             "prevUsageData" : getUsage()
         }
         with open("/tmp/openhwmon_linux/maps.json", "w") as fi:
@@ -32,8 +33,8 @@ def getUsage():
     return lst
 
 
-#FIND HWMON DIRECTORY THAT HOLDS CPU TEMPS
-def determineCpuTempDirectory():
+#FIND HWMON DIRECTORY THAT HOLDS CPU/MOTHERBOARD TEMPS
+def determineTempDirectory(key: str) -> str:
     hwmonDir = "/sys/class/hwmon"
     for rootDirPath, subDirs, files in os.walk(hwmonDir, followlinks=True):
         distance = rootDirPath.count(os.sep) - hwmonDir.count(os.sep) #depth of os.walk
@@ -42,10 +43,10 @@ def determineCpuTempDirectory():
             try:
                 with open(checkName, "r") as fi:
                     name = fi.read()
-                    if name == "coretemp\n":
+                    if name == key:
                         return checkName[:-5] #remove "/name" from file path
             except FileNotFoundError as ex:
-                print("ERROR WITH HWMON PARSING! No file found called \"name\"")
+                print(f"ERROR WITH HWMON PARSING! No file found called {key}")
                 print(ex)
         if distance >= 1:
             del subDirs[:]
