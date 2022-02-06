@@ -3,9 +3,8 @@ import init, CpuData, NvidiaGpuData, RamData, MotherboardData
 def main():
     init.createTempFS()
     
-    CpuData.fetch()
-    print("*" * 30)
-    print(CpuData.master)
+    cpuData = CpuData.fetch()
+    print(cpuData)
     print("*" * 30)
 
     gpuData = NvidiaGpuData.fetch()

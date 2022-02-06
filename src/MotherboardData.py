@@ -9,7 +9,6 @@ def getBoardTemp(boardData: dict) -> dict:
     except Exception as ex:
         print("ERROR RETRIEVING BOARD TEMP LOCATION!!")
         print(ex)
-    print(targetDir)
     for fi in os.listdir(targetDir):
         if "input" in fi:
             with open(targetDir + "/" + fi, "r") as tempFile:

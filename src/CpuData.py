@@ -1,12 +1,7 @@
-#!/usr/bin/python3
-
 import os, json
 
-master = {}
 
-#TODO rework methods without the global variable
-
-def refreshUsageData(currUsages):
+def refreshUsageData(currUsages: list) -> None:
     mapsFi = open("/tmp/openhwmon_linux/maps.json", "r+")
     maps = json.load(mapsFi)
     # print("WE ARE IN REFRESH DATA USAGE!!!!!!", maps)
@@ -16,10 +11,10 @@ def refreshUsageData(currUsages):
     json.dump(maps, mapsFi, indent=3)
     mapsFi.close()
 
-#TODO ADD THIS DATA TO MASTER!!!
-def calcUsage(prevUsages, currUsages):
-    global master; allUsages = []
-    refreshUsageData(currUsages)
+
+def calcUsage(prevUsages: list, currUsages: list, master: dict) -> dict:
+    allUsages = []
+    # refreshUsageData(currUsages)
     for i in range(0, len(prevUsages)):
         del prevUsages[i][0]
         del currUsages[i][0]
@@ -43,13 +38,12 @@ def calcUsage(prevUsages, currUsages):
         allUsages.append(abs(percentage))
     # print("PERCENTAGES::: {}".format(allUsages))
     for i in range(0, len(master["Cores"])):
-        # print(master["Cores"][i])
         master["Cores"][i]["Usage"] = allUsages[i]
-    # print(master["Cores"])
+    return master
 
 
 
-def getUsage():
+def getUsage() -> tuple:
     currUsageFile = "/proc/stat"; prevUsageFile = "/tmp/openhwmon_linux/maps.json"
     currUsages = []
     try:
@@ -69,12 +63,11 @@ def getUsage():
     except FileNotFoundError as ex:
         print("ERROR GETTING CURRENT USAGE DATA")
         print(ex)
-    calcUsage(prevUsages, currUsages)
+    return (prevUsages, currUsages)
 
 
 
-def getCpuTemp():
-    global master
+def getCpuTemp(master: dict) -> dict:
     try:
         with open("/tmp/openhwmon_linux/maps.json", "r") as fi:
             tempDir = json.load(fi)
@@ -91,7 +84,6 @@ def getCpuTemp():
         try:
             with open(cpuTempLoc, "r") as fi:
                 temp = fi.read()[:-1]
-                # print(temp)
                 if i == 1:
                     master["CPU TEMP"] = temp
                 else:
@@ -100,7 +92,7 @@ def getCpuTemp():
         except FileNotFoundError as ex:
             print("ERROR: could not find: {}".format(cpuTempLoc))
             print(ex)
-
+    return master
 
 
 
@@ -127,19 +119,19 @@ def cpuInfo():
                     }
                 )
                 coreID += 1
-        # exp = json.dumps(str(parsedData))
-        global master
-        master = parsedData
-        # print("---------------")
-        # print(master)
         cpuInfoFile.close()
+        return parsedData
     except Exception as ex:
         print("ERROR GETTING CPU DATA!")
         print(ex)
 
 
-def fetch():
-    cpuInfo()
-    getCpuTemp()
-    getUsage()
+def fetch() -> dict:
+    master = {}
+    master = cpuInfo()
+    master = getCpuTemp(master)
+    prevCurrUsage = getUsage()
+    refreshUsageData(prevCurrUsage[1]) #Stores current usage data for next calculation
+    master = calcUsage(prevCurrUsage[0], prevCurrUsage[1], master)
+    return master
         
