@@ -1,4 +1,4 @@
-import subprocess
+import subprocess, concurrent.futures, time
 
 
 def getGpuName() -> str:
@@ -49,14 +49,40 @@ def getFanSpeed() -> int:
 
 
 def fetch() -> dict:
-    
+    # start = time.perf_counter()
     master = {}
-    master["GPU Name"] = getGpuName()
-    master["Total Memory MiB"] = getTotalMemory()
-    master["Used Memory MiB"] = getUsedMemory()
-    master["GPU Temp C"] = getGpuTemp()
-    master["GPU Clockspeed MHz"] = getGpuClock()
-    master["GPU VRAM Use %"] = getVramUse()
-    master["VRAM Clock MHz"] = getVramClock()
-    master["Fan Speed %"] = getFanSpeed()
+    with concurrent.futures.ThreadPoolExecutor() as thread:
+        results = []
+        results.append(thread.submit(getGpuName))
+        results.append(thread.submit(getTotalMemory))
+        results.append(thread.submit(getUsedMemory))
+        results.append(thread.submit(getGpuTemp))
+        results.append(thread.submit(getGpuClock))
+        results.append(thread.submit(getVramUse))
+        results.append(thread.submit(getVramClock))
+        results.append(thread.submit(getFanSpeed))
+    # finish = time.perf_counter()
+    master["GPU Name"] = results[0].result()
+    master["Total Memory MiB"] = results[1].result()
+    master["Used Memory MiB"]= results[2].result()
+    master["GPU Temp C"]= results[3].result()
+    master["GPU Clockspeed MHz"]= results[4].result()
+    master["GPU VRAM Use %"]= results[5].result()
+    master["VRAM Clock MHz"]= results[6].result()
+    master["Fan Speed %"]= results[7].result()
+    
+    # print(f"TIME ASYNCHRONOUS::: {finish - start}")
+    # start = time.perf_counter()
+    # tmp = getGpuTemp()
+    # name = getGpuName()
+    # clk = getGpuClock()
+    # fan = getFanSpeed()
+    # mm = getTotalMemory()
+    # mu = getUsedMemory()
+    # vc = getVramClock()
+    # finish = time.perf_counter()
+    # print(f"TIME FOR synchronous method!!!::: {finish - start}")
     return master
+
+if __name__ == "__main__":
+    fetch()
