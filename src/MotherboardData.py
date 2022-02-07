@@ -16,7 +16,7 @@ def getBoardTemp(boardData: dict) -> dict:
     return boardData
 
 
-#Gets name and models of Motherboard and BIOS
+#Get name and models for Motherboard and BIOS
 def getGeneralInfo() -> list:
     boardData = {}; biosData = {}
     targetDir = "/sys/devices/virtual/dmi/id"

@@ -4,7 +4,6 @@ import os, json
 def refreshUsageData(currUsages: list) -> None:
     mapsFi = open("/tmp/openhwmon_linux/maps.json", "r+")
     maps = json.load(mapsFi)
-    # print("WE ARE IN REFRESH DATA USAGE!!!!!!", maps)
     maps["prevUsageData"] = currUsages
     # print("MAPS NOW!!!", maps)
     mapsFi.seek(0); mapsFi.truncate()
@@ -97,7 +96,7 @@ def getCpuTemp(master: dict) -> dict:
 
 
 # GET CPU MODEL, CACHE SIZE & CURR CLOCK SPEEDS
-def cpuInfo():
+def cpuInfo() -> dict:
     parsedData = {}
     try:
         cpuInfoFile = open("/proc/cpuinfo", "r")
