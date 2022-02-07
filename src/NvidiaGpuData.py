@@ -50,25 +50,13 @@ def getFanSpeed() -> int:
 
 def fetch() -> dict:
     master = {}
+    keys = ["GPU Name", "Total Memory MiB", "Used Memory MiB", "GPU Temp C", "GPU Clock MHz", "VRAM Use %", "VRAM Clock MHz", "Fan Speed %"]
+    funcs = [getGpuName, getTotalMemory, getUsedMemory, getGpuTemp, getGpuClock, getVramUse, getVramClock, getFanSpeed]
+    
     with concurrent.futures.ThreadPoolExecutor() as thread:
         results = []
-        results.append(thread.submit(getGpuName))
-        results.append(thread.submit(getTotalMemory))
-        results.append(thread.submit(getUsedMemory))
-        results.append(thread.submit(getGpuTemp))
-        results.append(thread.submit(getGpuClock))
-        results.append(thread.submit(getVramUse))
-        results.append(thread.submit(getVramClock))
-        results.append(thread.submit(getFanSpeed))
-    master["GPU Name"] = results[0].result()
-    master["Total Memory MiB"] = results[1].result()
-    master["Used Memory MiB"]= results[2].result()
-    master["GPU Temp C"]= results[3].result()
-    master["GPU Clockspeed MHz"]= results[4].result()
-    master["GPU VRAM Use %"]= results[5].result()
-    master["VRAM Clock MHz"]= results[6].result()
-    master["Fan Speed %"]= results[7].result()
+        for func in funcs:
+            results.append(thread.submit(func))
+    for i in range(0, len(keys)):
+        master[keys[i]] = results[i].result()
     return master
-
-if __name__ == "__main__":
-    fetch()
