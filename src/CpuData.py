@@ -11,7 +11,7 @@ def refreshUsageData(currUsages: list) -> None:
     mapsFi.close()
 
 
-def calcUsage(prevUsages: list, currUsages: list, master: dict) -> dict:
+def calcUsage(prevUsages: list, currUsages: list) -> list:
     allUsages = []
     # refreshUsageData(currUsages)
     for i in range(0, len(prevUsages)):
@@ -36,9 +36,7 @@ def calcUsage(prevUsages: list, currUsages: list, master: dict) -> dict:
         percentage = ((currUseTime - prevUseTime) - (currIdleTime - prevIdleTime)) / (allUseTimeCurr - allUseTimePrev)
         allUsages.append(abs(percentage))
     # print("PERCENTAGES::: {}".format(allUsages))
-    for i in range(0, len(master["Cores"])):
-        master["Cores"][i]["Usage"] = allUsages[i]
-    return master
+    return allUsages
 
 
 
@@ -66,7 +64,9 @@ def getUsage() -> tuple:
 
 
 
-def getCpuTemp(master: dict) -> dict:
+def getCpuTemp() -> dict:
+    master = {}
+    tempDir =""
     try:
         with open("/tmp/openhwmon_linux/maps.json", "r") as fi:
             tempDir = json.load(fi)
@@ -74,8 +74,6 @@ def getCpuTemp(master: dict) -> dict:
     except FileNotFoundError as ex:
         print("ERROR! FILE WAS NOT MADE IN init.py.\nCHECK init.determineCpuTempDirectory()")
         print(ex)
-    if (tempDir == -1):
-        return -1
     #core count starts at 1 here for some reason
     coreID = 0
     for i in range(1, os.cpu_count() + 2):
@@ -86,7 +84,7 @@ def getCpuTemp(master: dict) -> dict:
                 if i == 1:
                     master["CPU TEMP"] = temp
                 else:
-                    master["Cores"][coreID]["Temp"] = temp
+                    master[coreID] = temp
                     coreID += 1
         except FileNotFoundError as ex:
             print("ERROR: could not find: {}".format(cpuTempLoc))
@@ -126,10 +124,20 @@ def cpuInfo() -> dict:
 
 
 def fetch() -> dict:
-    master = {}
     master = cpuInfo()
-    master = getCpuTemp(master)
+    tempData = getCpuTemp()
     prevCurrUsage = getUsage()
     refreshUsageData(prevCurrUsage[1]) #Stores current usage data for next calculation
-    master = calcUsage(prevCurrUsage[0], prevCurrUsage[1], master)
+    usageData = calcUsage(prevCurrUsage[0], prevCurrUsage[1])
+    master["CPU Temp"] = tempData["CPU TEMP"]
+    master["Total Usage"] = usageData[0]
+    i = 0; j = 1
+    for coreData in master["Cores"]:
+        coreData["Temp"] = tempData[i]
+        coreData["Usage"] = usageData[j]
+        i += 1; j += 1
+
     return master
+
+if __name__ == "__main__":
+    fetch()

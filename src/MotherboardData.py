@@ -1,7 +1,7 @@
 import os, json
 
-
 def getBoardTemp(boardData: dict) -> dict:
+    boardTemp = {}
     try:
         with open("/tmp/openhwmon_linux/maps.json", "r") as fi:
             targetDir = json.load(fi)
