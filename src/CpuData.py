@@ -12,14 +12,8 @@ def refreshUsageData(currUsages: list) -> None:
 
 
 def calcUsage(prevUsages: list, currUsages: list) -> list:
-    allUsages = []
-    # refreshUsageData(currUsages)
-    # print(prevUsages)
-    # print(currUsages)
-    currSums = []
-    prevSums = []
-    currDeltas = []
-    idles = []
+    currSums = []; prevSums = []
+    currDeltas = []; idles = []
     for usage in currUsages:
         cpuSum = 0
         for i in range(1, len(usage)):
@@ -27,7 +21,6 @@ def calcUsage(prevUsages: list, currUsages: list) -> list:
             if i == 4:
                 idles.append(int(usage[i]))
         currSums.append(cpuSum)
-    # print("IDLES:: ", idles)
     icount = 0 #index for current core of idle list
     for usage in prevUsages:
         prevCpuSum = 0
@@ -37,21 +30,13 @@ def calcUsage(prevUsages: list, currUsages: list) -> list:
                 idles[icount] = idles[icount] - int(usage[i])
                 icount += 1
         prevSums.append(prevCpuSum)
-    # print(currSums)
-    # print(prevSums)
-    # print(idles)
 
     for i in range(0, len(currSums)):
         currDeltas.append(currSums[i] - prevSums[i])
-    # print("DELTAS:: ",currDeltas)
     cpuUsed = []; totUsage = []
     for i in range(0, len(currDeltas)):
         cpuUsed.append((currDeltas[i] - idles[i]) / currDeltas[i])
-
     
-
-    # allUsages.append(abs(percentage))
-    # print("PERCENTAGES::: {}".format(allUsages))
     return cpuUsed
 
 
