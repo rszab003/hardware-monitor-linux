@@ -33,10 +33,11 @@ def calcUsage(prevUsages: list, currUsages: list) -> list:
 
     for i in range(0, len(currSums)):
         currDeltas.append(currSums[i] - prevSums[i])
-    cpuUsed = []; totUsage = []
+    cpuUsed = []
     for i in range(0, len(currDeltas)):
-        cpuUsed.append((currDeltas[i] - idles[i]) / currDeltas[i])
-    
+        res = (currDeltas[i] - idles[i]) / currDeltas[i]
+        cpuUsed.append(round(res, 4))
+    # print(cpuUsed)
     return cpuUsed
 
 
@@ -66,7 +67,7 @@ def getUsage() -> tuple:
 
 
 def getCpuTemp() -> dict:
-    master = {}
+    master = []
     tempDir =""
     try:
         with open("/tmp/openhwmon_linux/maps.json", "r") as fi:
@@ -76,17 +77,12 @@ def getCpuTemp() -> dict:
         print("ERROR! FILE WAS NOT MADE IN init.py.\nCHECK init.determineCpuTempDirectory()")
         print(ex)
     #core count starts at 1 here for some reason
-    coreID = 0
     for i in range(1, os.cpu_count() + 2):
         cpuTempLoc = tempDir + "/temp{}_input".format(str(i))
         try:
             with open(cpuTempLoc, "r") as fi:
                 temp = fi.read()[:-1]
-                if i == 1:
-                    master["CPU TEMP"] = temp
-                else:
-                    master[coreID] = temp
-                    coreID += 1
+                master.append(float(temp) / 1000)
         except FileNotFoundError as ex:
             print("ERROR: could not find: {}".format(cpuTempLoc))
             print(ex)
@@ -105,39 +101,26 @@ def cpuInfo() -> dict:
         cacheSize = cpuDump[8][13:]
         parsedData["CPU Model"] = model[:-1] #removes \n character
         parsedData["CPU Cache Size"] = cacheSize[:-1]
-        parsedData["Cores"] = []
+        parsedData["Clocks"] = []
         #GET CLOCK SPEED
         coreID = 0
         for line in cpuDump:
             if "cpu MHz" in line:
-                parsedData["Cores"].append(
-                    {
-                        "id" : coreID,
-                        "Clock MHz" : float(line[11:-1]),
-                    }
-                )
+                parsedData["Clocks"].append(float(line[11:-1]))
                 coreID += 1
-        cpuInfoFile.close()
-        return parsedData
+        cpuInfoFile.close()    
     except Exception as ex:
         print("ERROR GETTING CPU DATA!")
         print(ex)
-
+    return parsedData
 
 def fetch() -> dict:
     master = cpuInfo()
-    tempData = getCpuTemp()
+    master["Temps"] = getCpuTemp()
     prevCurrUsage = getUsage()
     refreshUsageData(prevCurrUsage[1]) #Stores current usage data for next calculation
-    usageData = calcUsage(prevCurrUsage[0], prevCurrUsage[1])
-    master["CPU Temp"] = tempData["CPU TEMP"]
-    master["Total Usage"] = usageData[0]
-    i = 0; j = 1
-    for coreData in master["Cores"]:
-        coreData["Temp"] = tempData[i]
-        coreData["Usage"] = usageData[j]
-        i += 1; j += 1
-
+    master["Usages"] = calcUsage(prevCurrUsage[0], prevCurrUsage[1])
+    print(master)
     return master
 
 if __name__ == "__main__":
