@@ -16,8 +16,8 @@ def main():
     init.createTempFS()
     allData = executeThreads()
 
-    for i in allData[0].result().values():
-        print(i)
+    # for i in allData[0].result().values():
+    #     print(i)
 
     for x in allData:
         print(x.result())

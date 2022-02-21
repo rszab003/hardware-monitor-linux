@@ -36,7 +36,7 @@ def calcUsage(prevUsages: list, currUsages: list) -> list:
     cpuUsed = []
     for i in range(0, len(currDeltas)):
         res = (currDeltas[i] - idles[i]) / currDeltas[i]
-        cpuUsed.append(round(res, 4))
+        cpuUsed.append(round(res * 100, 2))
     # print(cpuUsed)
     return cpuUsed
 
