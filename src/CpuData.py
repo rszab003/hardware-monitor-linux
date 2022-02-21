@@ -120,7 +120,7 @@ def fetch() -> dict:
     prevCurrUsage = getUsage()
     refreshUsageData(prevCurrUsage[1]) #Stores current usage data for next calculation
     master["Usages"] = calcUsage(prevCurrUsage[0], prevCurrUsage[1])
-    print(master)
+    # print(master)
     return master
 
 if __name__ == "__main__":

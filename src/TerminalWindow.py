@@ -1,9 +1,17 @@
-import curses, asyncio
-import main, time
+import curses, time
+from re import S
 from curses import textpad
+import main
 
-async def updateSimple(sc, xx, highlight):
-    sc.addstr(3,3,str(highlight))
+
+def getHwData() -> tuple:
+    start = time.perf_counter()
+    allData = main.executeThreads()
+    finish = time.perf_counter()
+    return (finish - start, allData)
+
+
+def updateSimple(sc, highlight, data):
     navItems = ["CPU", "GPU", "RAM", "MOTHERBOARD"]
     y,x = sc.getmaxyx()
     yPlacement = y - 2
@@ -15,73 +23,45 @@ async def updateSimple(sc, xx, highlight):
         if i == highlight:
             sc.addstr(yPlacement, xPlacement - totNavLength, navItems[i], curses.color_pair(1))
         else:
-            sc.addstr(yPlacement, xPlacement - totNavLength, navItems[i])   
-
-
-
-async def update(sc, highlight) -> list:
-    programTitle = "OPEN HARDWARE MONITOR"
-    navHelpText = "USE ARROW KEYS"
-    y, x = sc.getmaxyx()
-    titlePlacement = (x // 2) - (len(programTitle) // 2)
-    quitPlacement = y - 2
-    boundingBox = [1, 1, y-3, x-3]
-    navHelpPlacement = (x // 2) - (len(navHelpText) // 2)
-    textpad.rectangle(sc, 1, 1, y-3, x-3)
-    sc.addstr(0, titlePlacement, programTitle)
-    sc.addstr(quitPlacement, 1, "Press \'q\' to quit.")
-    sc.addstr(y - 2, navHelpPlacement, navHelpText)
-    
-    # BUILD NAV, LOWER RIGHT
-    navItems = ["CPU", "GPU", "RAM", "MOTHERBOARD"]
-    yPlacement = y - 2
-    xPlacement = x - 3
-    totNavLength = 0; count = 0
-    curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
-    for i in range(0, len(navItems)):
-        totNavLength += len(navItems[i]) + 1
-        if i == highlight:
-            sc.addstr(yPlacement, xPlacement - totNavLength, navItems[i], curses.color_pair(1))
-        else:
             sc.addstr(yPlacement, xPlacement - totNavLength, navItems[i])
-    return boundingBox
+    sc.addstr(5,5, str(data))
 
 
 
-async def run(sc: curses.window):
+def run(sc: curses.window):
     sc.nodelay(True)
     navHighlight = 0
     curses.curs_set(0)
-    x = 1
+    
     while True:
-        key = sc.getch()
+        try:
+            key = sc.getkey()
+        except:
+            key = None
+        
         sc.clear()
-        if key == ord("q") or key == ord("Q"):
+
+        if key == "q" or key == "Q":
             break
-        if key == curses.KEY_RIGHT and navHighlight > 0:
+        elif key == "KEY_RIGHT" and navHighlight > 0:
             navHighlight -= 1
-        elif key == curses.KEY_RIGHT and navHighlight == 0:
+        elif key == "KEY_RIGHT" and navHighlight == 0:
             navHighlight = 3
-        if key == curses.KEY_LEFT and navHighlight < 3:
+        elif key == "KEY_LEFT" and navHighlight < 3:
             navHighlight += 1
-        elif key == curses.KEY_LEFT and navHighlight == 3:
+        elif key == "KEY_LEFT" and navHighlight == 3:
             navHighlight = 0
-        # time.sleep(1.5)
-        # getHwData(sc, navHighlight)
-        # upd = loop.create_task(update(sc, navHighlight))
-        r1 = asyncio.create_task(updateSimple(sc, x, navHighlight))
-        x += 1
-        await asyncio.sleep(1)
-        # await r1
+    
+        sc.addstr(15,15, f"KEY IS!!!::: {key}")
+        #0 = CPU, 1 = GPU, 2 = RAM, 3 = Motherboard
+        # sc.addstr(str(task))        
+        delayAmt, hwData = getHwData()
+        sc.addstr(8,8, str(delayAmt))
+        updateSimple(sc, navHighlight, hwData[navHighlight].result())
         sc.refresh()
-        # time.sleep(1)
+        time.sleep(1 - delayAmt)
         
         # getHwData(sc)
         
 if __name__ == "__main__":
-    try:
-        asyncio.run(curses.wrapper(run))
-    except Exception as ex:
-        print(ex)
-    finally:
-        loop.close()
+    curses.wrapper(run)
