@@ -49,4 +49,3 @@ def determineTempDirectory(key: str) -> str:
                 print(ex)
         if distance >= 1:
             del subDirs[:]
-

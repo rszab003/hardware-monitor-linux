@@ -5,7 +5,7 @@ from sys import argv
 from time import sleep, perf_counter
 from json import dump
 
-#USAGE: python3 main.py -r (float)
+USAGE = "python3 main.py -r (float)"
 
 
 MANIFEST = "/tmp/openhwmon_linux/manifest.json"
@@ -22,17 +22,20 @@ def executeThreads() -> list:
 
 
 def main():
-    init.createTempFS()
-    allData = executeThreads()
-
+    # init.createTempFS()
+    # allData = executeThreads()
+    
     # for i in allData[0].result().values():
     #     print(i)
 
     # for x in allData:
         # print(x.result())
         # print("*" * 30)
-    
-    if len(argv) > 1 and len(argv) < 4:
+    if len(argv) != 4:
+        print("INCORRECT USAGE!!!")
+        print("USAGE:", USAGE)
+        exit(-1)
+    else:
         if argv[1] == "-r":
             print("REPEAT!!")
             if argv[2] != None:
@@ -48,7 +51,7 @@ def main():
                     allData = executeThreads()
                     end = perf_counter()
                     delta = end - start
-                    print("GOT DATA IN::: {}".format(delta))
+                    # print("GOT DATA IN::: {}".format(delta))
                     exp = {}
                     for idx, x in enumerate(allData):
                         # print(x.result())
@@ -62,10 +65,10 @@ def main():
                     try: #in case refresh arg is too low
                         
                         sleep(delay - delta)
-                        print(f"Sleeping for: {delay - delta} sec")
+                        # print(f"Sleeping for: {delay - delta} sec")
                     except ValueError:
                         sleep(math.ceil(delta) - delta)
-                        print(f"Sleeping for: {math.ceil(delta) - delta} sec")
+                        # print(f"Sleeping for: {math.ceil(delta) - delta} sec")
             except KeyboardInterrupt:
                 print("ABORTING...")
                 exit(1)
