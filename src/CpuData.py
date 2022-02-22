@@ -35,7 +35,10 @@ def calcUsage(prevUsages: list, currUsages: list) -> list:
         currDeltas.append(currSums[i] - prevSums[i])
     cpuUsed = []
     for i in range(0, len(currDeltas)):
-        res = (currDeltas[i] - idles[i]) / currDeltas[i]
+        try:
+            res = (currDeltas[i] - idles[i]) / currDeltas[i]
+        except ZeroDivisionError:
+            res = (currDeltas[i] - idles[i]) / 1
         cpuUsed.append(round(res * 100, 2))
     # print(cpuUsed)
     return cpuUsed

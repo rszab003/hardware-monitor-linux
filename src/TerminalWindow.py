@@ -3,7 +3,7 @@ from curses import textpad
 import main
 from math import ceil
 
-
+# Method that should parse all hardware data other than CPU
 def parseHwPart(sc: curses.window, part: dict, startY: int, startX: int) -> None:
     # sc.addstr(15, 8, str(data))
     currY = startY; currX = startX
@@ -12,7 +12,7 @@ def parseHwPart(sc: curses.window, part: dict, startY: int, startX: int) -> None
     longestLabel = [len(key) + 2 + len(str(part[key])) for key in part.keys()]
     longestLabel = max(longestLabel) + 2
     
-    for i, key in enumerate(part.keys()):
+    for key in part.keys():
         label = f"{key}:"
         data = str(part[key])
         if currX == 3: #we are on first column
@@ -23,7 +23,6 @@ def parseHwPart(sc: curses.window, part: dict, startY: int, startX: int) -> None
             sc.addstr(currY, longestLabel + 2, label, curses.A_BOLD)
             currX = longestLabel + len(label)
             sc.addstr(currY, currX + 3, data)
-
         if currCols < maxCols:
             currX += 1 + len(data)
             currCols += 1
@@ -74,6 +73,8 @@ def parseCpuData(sc: curses.window, data: dict) -> None:
     sc.addstr(currY, currX - 1, "USAGES (%)")
     currY, currX = parseList(data["Usages"], currY + 1, currX)
 
+#gets all hardware data
+#returns a time interval to use with time.sleep()
 def getHwData() -> tuple:
     start = time.perf_counter()
     allData = main.executeThreads()
@@ -116,6 +117,7 @@ def run(sc: curses.window):
         
         sc.clear()
 
+        #Process key commands
         if key == "q" or key == "Q":
             break
         elif key == "KEY_RIGHT" and navHighlight > 0:
@@ -127,6 +129,7 @@ def run(sc: curses.window):
         elif key == "KEY_LEFT" and navHighlight == 3:
             navHighlight = 0
         
+        #GET HW DATA
         delayAmt, hwData = getHwData()
         
         try:
