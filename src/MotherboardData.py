@@ -2,6 +2,7 @@ import os, json
 
 def getBoardTemp(boardData: dict) -> dict:
     boardTemp = {}
+    targetDir = ""
     try:
         with open("/tmp/openhwmon_linux/maps.json", "r") as fi:
             targetDir = json.load(fi)
@@ -9,6 +10,7 @@ def getBoardTemp(boardData: dict) -> dict:
     except Exception as ex:
         print("ERROR RETRIEVING BOARD TEMP LOCATION!!")
         print(ex)
+        return
     for fi in os.listdir(targetDir):
         if "input" in fi:
             with open(targetDir + "/" + fi, "r") as tempFile:

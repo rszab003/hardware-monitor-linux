@@ -1,3 +1,4 @@
+import math
 import init, CpuData, NvidiaGpuData, RamData, MotherboardData
 import concurrent.futures
 from sys import argv
@@ -41,24 +42,33 @@ def main():
                     print(ex)
                     print("Please provide a number for the delay")
                     exit(-1)
-            while True:
-                start = perf_counter()
-                allData = executeThreads()
-                end = perf_counter()
-                delta = end - start
-                print("GOT DATA IN::: {}".format(delta))
-                exp = {}
-                for idx, x in enumerate(allData):
-                    # print(x.result())
-                    # print("*" * 30)
-                    exp[idx] = x.result()
-                
-                print("EXPORT TO JSON!! {}".format(exp))
-                
-                with open(MANIFEST, "w") as outFile:
-                    dump(exp, outFile, indent=3)
-                
-                sleep(delay - delta)
+            try:
+                while True:
+                    start = perf_counter()
+                    allData = executeThreads()
+                    end = perf_counter()
+                    delta = end - start
+                    print("GOT DATA IN::: {}".format(delta))
+                    exp = {}
+                    for idx, x in enumerate(allData):
+                        # print(x.result())
+                        # print("*" * 30)
+                        exp[idx] = x.result()
+                    
+                    # print("EXPORT TO JSON!! {}".format(exp))
+                    
+                    with open(MANIFEST, "w") as outFile:
+                        dump(exp, outFile, indent=3)
+                    try: #in case refresh arg is too low
+                        
+                        sleep(delay - delta)
+                        print(f"Sleeping for: {delay - delta} sec")
+                    except ValueError:
+                        sleep(math.ceil(delta) - delta)
+                        print(f"Sleeping for: {math.ceil(delta) - delta} sec")
+            except KeyboardInterrupt:
+                print("ABORTING...")
+                exit(1)
     # print(boardBiosData)
 
 
