@@ -3,6 +3,7 @@ import concurrent.futures
 
 
 def executeThreads() -> list:
+    init.createTempFS()
     with concurrent.futures.ThreadPoolExecutor() as thread:
         results = []
         results.append(thread.submit(CpuData.fetch))

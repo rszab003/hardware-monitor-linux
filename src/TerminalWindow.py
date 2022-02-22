@@ -1,10 +1,39 @@
 import curses, time
-from distutils.log import error
 from curses import textpad
 import main
+from math import ceil
 
 
-def parseCpuData(sc: curses.window, data: dict):
+def parseHwPart(sc: curses.window, part: dict, startY: int, startX: int) -> None:
+    # sc.addstr(15, 8, str(data))
+    currY = startY; currX = startX
+    maxCols = 2; currCols = 1
+    
+    longestLabel = [len(key) + 2 + len(str(part[key])) for key in part.keys()]
+    longestLabel = max(longestLabel) + 2
+    
+    for i, key in enumerate(part.keys()):
+        label = f"{key}:"
+        data = str(part[key])
+        if currX == 3: #we are on first column
+            sc.addstr(currY, currX, label, curses.A_BOLD)
+            currX += len(label)
+            sc.addstr(currY, currX + 1, data)
+        else:
+            sc.addstr(currY, longestLabel + 2, label, curses.A_BOLD)
+            currX = longestLabel + len(label)
+            sc.addstr(currY, currX + 3, data)
+
+        if currCols < maxCols:
+            currX += 1 + len(data)
+            currCols += 1
+        elif currCols >= maxCols: #Starts new Row
+            currY += 1; currX = startX
+            currCols = 1
+
+
+
+def parseCpuData(sc: curses.window, data: dict) -> None:
     sep = " || "
     sc.addstr(2,3, data["CPU Model"])
     sc.addstr(2, 3 + len(data["CPU Model"]), sep + "Cache: {}".format(data["CPU Cache Size"]))
@@ -101,17 +130,24 @@ def run(sc: curses.window):
         delayAmt, hwData = getHwData()
         
         try:
-            # sc.addstr(15,15, f"KEY IS!!!::: {key}")
-            #0 = CPU, 1 = GPU, 2 = RAM, 3 = Motherboard
-            # sc.addstr(str(task))        
+            #0 = CPU, 1 = GPU, 2 = RAM, 3 = Motherboard       
             updateSimple(sc, navHighlight)
             if navHighlight == 0:
                 parseCpuData(sc, hwData[navHighlight].result())
+            elif navHighlight == 1:
+                parseHwPart(sc, hwData[navHighlight].result(), 2, 3)
+            elif navHighlight == 2:
+                parseHwPart(sc, hwData[navHighlight].result(), 2, 3)
+            elif navHighlight == 3:
+                parseHwPart(sc, hwData[navHighlight].result()[0], 2, 3)
+                parseHwPart(sc, hwData[navHighlight].result()[1], 8, 3)
         except curses.error:
-            sc.addstr("WINDOW IS TOO SMALL")
-        # sc.addstr(8,8, str(delayAmt))        
+            sc.addstr("WINDOW IS TOO SMALL") 
         sc.refresh()
-        time.sleep(1 - delayAmt)
+        try: #in case getting hw data takes longer than one sec?
+            time.sleep(1 - delayAmt)
+        except ValueError:
+            time.sleep(ceil(delayAmt) - delayAmt)
         
 if __name__ == "__main__":
     curses.wrapper(run)
