@@ -17,7 +17,8 @@ def createTempFS() -> None:
         with open("/tmp/openhwmon_linux/maps.json", "w") as fi:
             json.dump(data, fi, indent=3)
 
-
+#Gets usage data of the cpu from "/proc/stat" for CpuData.calcUsage to use
+#as the prevUsage variable
 def getUsage() -> list:
     usageFile = "/proc/stat"
     lst = []
@@ -49,3 +50,8 @@ def determineTempDirectory(key: str) -> str:
                 print(ex)
         if distance >= 1:
             del subDirs[:]
+
+
+if __name__ == "parts":
+    print("CREATING JSON FILE IN /tmp")
+    createTempFS()

@@ -1,5 +1,5 @@
 import math
-import init, CpuData, NvidiaGpuData, RamData, MotherboardData
+import parts.CpuData as CpuData, parts.NvidiaGpuData as NvidiaGpuData, parts.RamData as RamData, parts.MotherboardData as MotherboardData
 import concurrent.futures
 from sys import argv
 from time import sleep, perf_counter
@@ -11,7 +11,7 @@ USAGE = "python3 main.py -r (float)"
 MANIFEST = "/tmp/openhwmon_linux/manifest.json"
 
 def executeThreads() -> list:
-    init.createTempFS()
+    # parts.createTempFS()
     with concurrent.futures.ThreadPoolExecutor() as thread:
         results = []
         results.append(thread.submit(CpuData.fetch))
@@ -22,16 +22,17 @@ def executeThreads() -> list:
 
 
 def main():
-    # init.createTempFS()
-    # allData = executeThreads()
     
-    # for i in allData[0].result().values():
-    #     print(i)
+    
 
+    # UNCOMMENT for ONE-TIME display of Data
+    
+    # allData = executeThreads()
     # for x in allData:
         # print(x.result())
         # print("*" * 30)
-    if len(argv) != 4:
+    # print(len(argv))
+    if len(argv) != 3:
         print("INCORRECT USAGE!!!")
         print("USAGE:", USAGE)
         exit(-1)
@@ -48,8 +49,11 @@ def main():
             try:
                 while True:
                     start = perf_counter()
+
                     allData = executeThreads()
+                    
                     end = perf_counter()
+                    
                     delta = end - start
                     # print("GOT DATA IN::: {}".format(delta))
                     exp = {}
@@ -58,7 +62,7 @@ def main():
                         # print("*" * 30)
                         exp[idx] = x.result()
                     
-                    # print("EXPORT TO JSON!! {}".format(exp))
+                    print("EXPORT TO JSON!! {}".format(exp))
                     
                     with open(MANIFEST, "w") as outFile:
                         dump(exp, outFile, indent=3)
@@ -72,6 +76,8 @@ def main():
             except KeyboardInterrupt:
                 print("ABORTING...")
                 exit(1)
+        else:
+            print("INCORRECT USAGE!\n{}".format(USAGE))
     # print(boardBiosData)
 
 

@@ -1,6 +1,6 @@
 import curses, time
 from curses import textpad
-import main
+import driver
 from math import ceil
 
 # Method that should parse all hardware data other than CPU
@@ -77,7 +77,7 @@ def parseCpuData(sc: curses.window, data: dict) -> None:
 #returns a time interval to use with time.sleep()
 def getHwData() -> tuple:
     start = time.perf_counter()
-    allData = main.executeThreads()
+    allData = driver.executeThreads()
     finish = time.perf_counter()
     return (finish - start, allData)
 
@@ -104,7 +104,7 @@ def updateSimple(sc, highlight) -> None:
 
 
 
-def run(sc: curses.window):
+def run(sc: curses.window) -> None:
     sc.nodelay(True)
     navHighlight = 0
     curses.curs_set(0)

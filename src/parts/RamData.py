@@ -1,4 +1,4 @@
-
+import parts.converter as converter
 
 def getRamData() -> dict:
     master = {}
@@ -8,6 +8,13 @@ def getRamData() -> dict:
             memData = memData.split()
             if len(memData) != 3: #might not be necessary i just dont know how this differs on other distros
                 raise Exception("ERROR PARSING MEMORY DATA: Check length of /proc/meminfo\nShould be split into three sections.")
-            master[memData[0][:-1]] = memData[1] + " " + memData[2]
+            
+            newVal, unit = converter.convert(int(memData[1]), "kilobyte", "megabyte")
+            newVal = round(newVal, 4)
+            master[memData[0][:-1]] = str(newVal) + " " + unit
+    
     return master
     
+if __name__ == "__main__":
+    master = getRamData()
+    print(master)
