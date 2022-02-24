@@ -3,7 +3,7 @@
 from os.path import exists
 import os, json
 
-
+#Create the openhwmon_linux folder and maps.json file in /tmp
 def createTempFS() -> None:
     if not exists("/tmp/openhwmon_linux"):
         os.mkdir("/tmp/openhwmon_linux", 755)

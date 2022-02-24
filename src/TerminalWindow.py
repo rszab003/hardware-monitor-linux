@@ -3,13 +3,21 @@ from curses import textpad
 import driver
 from math import ceil
 
+#Very basic terminal output of all collected hardware data so far
+
 # Method that should parse all hardware data other than CPU
 def parseHwPart(sc: curses.window, part: dict, startY: int, startX: int) -> None:
     # sc.addstr(15, 8, str(data))
     currY = startY; currX = startX
     maxCols = 2; currCols = 1
     
-    longestLabel = [len(key) + 2 + len(str(part[key])) for key in part.keys()]
+    try: #This line of code was throwing AttributeError occaisionally
+        longestLabel = [len(key) + 2 + len(str(part[key])) for key in part.keys()]
+    except AttributeError as ex:
+        sc.addstr("BAD READ!!!")
+        sc.addstr(8,8, str(ex))
+        return
+
     longestLabel = max(longestLabel) + 2
     
     for key in part.keys():
