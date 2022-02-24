@@ -1,4 +1,4 @@
-Hardware monitor by Robert Laszlo Szabo
+Hardware monitor by Robert Laszlo Szabo | WIP
 ---
 lets you view things like temperature and clock speeds as they change
 on your linux machine
