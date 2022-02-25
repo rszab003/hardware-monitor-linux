@@ -6,8 +6,6 @@ from time import sleep, perf_counter
 from json import dump
 
 USAGE = "python3 main.py -r (float)"
-
-
 MANIFEST = "/tmp/openhwmon_linux/manifest.json"
 
 def executeThreads() -> list:
@@ -22,9 +20,6 @@ def executeThreads() -> list:
 
 
 def main():
-    
-    
-
     # UNCOMMENT for ONE-TIME display of Data
     
     # allData = executeThreads()
