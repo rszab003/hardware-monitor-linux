@@ -14,7 +14,7 @@ def executeThreads() -> list:
         results = []
         results.append(thread.submit(CpuData.fetch))
         results.append(thread.submit(NvidiaGpuData.fetch))
-        results.append(thread.submit(RamData.getRamData))
+        results.append(thread.submit(RamData.fetch))
         results.append(thread.submit(MotherboardData.fetch))
     return results
 
@@ -62,7 +62,6 @@ def main():
                     with open(MANIFEST, "w") as outFile:
                         dump(exp, outFile, indent=3)
                     try: #in case refresh arg is too low
-                        
                         sleep(delay - delta)
                         # print(f"Sleeping for: {delay - delta} sec")
                     except ValueError:
