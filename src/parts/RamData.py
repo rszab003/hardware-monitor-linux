@@ -1,6 +1,6 @@
 # import UnitConverter_hwmon
-from parts import UnitConverter_hwmon
-import subprocess, time, concurrent.futures
+# from parts import UnitConverter_hwmon
+import subprocess, concurrent.futures
 
 #reads how many RAM sticks are installed, returns vendor, size, and clock
 #This method might change how the whole program is executed. Will need root privelages
@@ -71,8 +71,8 @@ def fetch() -> dict:
 
 
 if __name__ == "__main__":
-    start = time.perf_counter()
+    import UnitConverter_hwmon
     master = fetch()
-    finish = time.perf_counter()
-    print("FINISHED IN::: {}".format(finish - start))
-    # print(master)
+    print(master)
+else:
+    from parts import UnitConverter_hwmon
