@@ -61,4 +61,6 @@ def fetch() -> dict:
     #assemble data and return to main
     for i in range(0, len(keys)):
         master[keys[i]] = results[i].result()
+    
+    master["BaseName"] = "GPU"
     return master

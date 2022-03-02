@@ -59,7 +59,7 @@ def getRamData() -> dict:
             master[memData[0][:-1]] = str(newVal) + " " + unit
     return master
 
-
+###
 def fetch() -> dict:
     results = []
     with concurrent.futures.ThreadPoolExecutor() as thread:
@@ -67,6 +67,8 @@ def fetch() -> dict:
         results.append(thread.submit(getConfiguration))
     master = results[0].result()
     master["Ram Stick Data"] = results[1].result()
+
+    master["BaseName"] = "RAM"
     return master
 
 

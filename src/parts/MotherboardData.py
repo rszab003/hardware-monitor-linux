@@ -37,4 +37,5 @@ def getGeneralInfo() -> list:
 def fetch() -> list:
     boardBiosData = getGeneralInfo()
     boardBiosData[0] = getBoardTemp(boardBiosData[0])
+    boardBiosData[0]["BaseName"] = "Motherboard"
     return boardBiosData

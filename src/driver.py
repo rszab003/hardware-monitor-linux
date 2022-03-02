@@ -1,11 +1,11 @@
 import math
 import parts.CpuData as CpuData, parts.NvidiaGpuData as NvidiaGpuData, parts.RamData as RamData, parts.MotherboardData as MotherboardData
 import concurrent.futures
-from sys import argv
+import sys
 from time import sleep, perf_counter
 from json import dump
 
-USAGE = "python3 main.py -r (float)"
+USAGE = "python3 driver.py -r (float)"
 MANIFEST = "/tmp/openhwmon_linux/manifest.json"
 
 def executeThreads() -> list:
@@ -27,16 +27,17 @@ def main():
         # print(x.result())
         # print("*" * 30)
     # print(len(argv))
-    if len(argv) != 3:
-        print("INCORRECT USAGE!!!")
+    if len(sys.argv) != 3:
+        print("INCORRECT USAGE !")
         print("USAGE:", USAGE)
+        print(f"LENARGS::: {len(sys.argv)}")
         exit(-1)
     else:
-        if argv[1] == "-r":
+        if sys.argv[1] == "-r":
             print("REPEAT!!")
-            if argv[2] != None:
+            if sys.argv[2] != None:
                 try:
-                    delay = float(argv[2])
+                    delay = float(sys.argv[2])
                 except ValueError as ex:
                     print(ex)
                     print("Please provide a number for the delay")
@@ -50,13 +51,18 @@ def main():
                     end = perf_counter()
                     
                     delta = end - start
-                    # print("GOT DATA IN::: {}".format(delta))
+                    print("GOT DATA IN::: {}".format(delta))
                     exp = {}
                     for idx, x in enumerate(allData):
                         # print(x.result())
                         # print("*" * 30)
-                        exp[idx] = x.result()
+                        data = x.result()
+                        if type(data) == dict:
+                            exp[data["BaseName"]] = data
+                        elif type(data) == list:
+                            exp[data[0]["BaseName"]] = data
                     
+                    #Add/remove comment to see output in console
                     print("EXPORT TO JSON!! {}".format(exp))
                     
                     with open(MANIFEST, "w") as outFile:
