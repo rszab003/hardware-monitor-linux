@@ -1,12 +1,14 @@
 import math
 import parts.CpuData as CpuData, parts.NvidiaGpuData as NvidiaGpuData, parts.RamData as RamData, parts.MotherboardData as MotherboardData
 import concurrent.futures
-import sys
+from sys import argv
 from time import sleep, perf_counter
 from json import dump
 
 USAGE = "python3 driver.py -r (float)"
 MANIFEST = "/tmp/openhwmon_linux/manifest.json"
+
+#TODO add files that reads info about the drives connecected to pc
 
 def executeThreads() -> list:
     # parts.createTempFS()
@@ -27,17 +29,17 @@ def main():
         # print(x.result())
         # print("*" * 30)
     # print(len(argv))
-    if len(sys.argv) != 3:
+    if len(argv) != 3:
         print("INCORRECT USAGE !")
         print("USAGE:", USAGE)
-        print(f"LENARGS::: {len(sys.argv)}")
+        print(f"LENARGS::: {len(argv)}")
         exit(-1)
     else:
-        if sys.argv[1] == "-r":
+        if argv[1] == "-r":
             print("REPEAT!!")
-            if sys.argv[2] != None:
+            if argv[2] != None:
                 try:
-                    delay = float(sys.argv[2])
+                    delay = float(argv[2])
                 except ValueError as ex:
                     print(ex)
                     print("Please provide a number for the delay")
@@ -51,6 +53,7 @@ def main():
                     end = perf_counter()
                     
                     delta = end - start
+                    #ADD/REMOVE COMMENT BELOW
                     print("GOT DATA IN::: {}".format(delta))
                     exp = {}
                     for idx, x in enumerate(allData):
